@@ -7,7 +7,7 @@ int main(int argc, char *argv[]){
 
     // 2) PART 1 (100 points).
     //    Generate an AST of the file by calling generateAST in the parseProgram.c file
-    //    This is the meat and potatoes of the project, we need to write the generateAST function. \
+    //    This is the meat and potatoes of the project, we need to write the generateAST function.
 
     // 3) Call parser_close to close the file.
 
