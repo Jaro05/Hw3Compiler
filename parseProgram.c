@@ -68,15 +68,31 @@ AST_list parseConstDecls(){
     return(NULL);
 }
 
-AST_list parseVarDecls(){
-    token vart = tok;
+void add_AST_to_end(AST_list *head, AST_list *last, AST_list lst)
+{
+    if (ast_list_is_empty(*head)) {
+        *head = lst;
+        *last = ast_list_last_elem(lst);
+    } else {
+	    // assert(*last != NULL);
+        ast_list_splice(*last, lst);
+        *last = ast_list_last_elem(lst);
+    }
+}
 
-    while(vart.typ == varsym){
+
+AST_list parseVarDecls(){
+    AST_list ret = ast_list_empty_list();
+    AST_list last = ast_list_empty_list();
+
+    while(tok.typ == varsym){
         eat(varsym);
-        parseIdents();
+        AST_list idents = parseIdents();
+        add_AST_to_end(&ret, &last, idents);
+        eat(semisym);
     }
 
-    return(NULL);
+    return(ret);
 }
 
 AST_list parseIdents()
@@ -85,13 +101,15 @@ AST_list parseIdents()
     eat(identsym);
     AST* vd1 = ast_var_decl(idtok, idtok.text);
     AST_list ret = ast_list_singleton(vd1);
+    AST_list last = ret;
+
     while (tok.typ == commasym) {
         eat(commasym);
-        token idtok = tok;
+        token idtok2 = tok;
         eat(identsym);
-        AST* vd2 = ast_var_decl(idtok, idtok.text);
+        AST* vd2 = ast_var_decl(idtok2, idtok2.text);
 
-        ast_list_splice(ret, vd2);
+        add_AST_to_end(&ret, &last, ast_list_singleton(vd2));
     }
 
     return ret;

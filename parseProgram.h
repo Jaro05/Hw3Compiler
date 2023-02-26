@@ -33,3 +33,7 @@ AST* parseExpression();
 bin_arith_op parseBinarthop();
 
 AST* parseAssignStmt();
+
+AST_list parseIdents();
+
+void add_AST_to_end(AST_list *head, AST_list *last, AST_list lst);
