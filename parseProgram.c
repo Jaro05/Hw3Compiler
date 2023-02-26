@@ -80,40 +80,71 @@ void add_AST_to_end(AST_list *head, AST_list *last, AST_list lst)
     }
 }
 
-
-AST_list parseVarDecls(){
+AST_list parseVarDecls()
+{
     AST_list ret = ast_list_empty_list();
     AST_list last = ast_list_empty_list();
-
-    while(tok.typ == varsym){
+    // invariant: !ast_list_is_empty(ret) ==> !ast_list_is_empty(last)
+    while (tok.typ == varsym) {
+        AST_list vdasts;
         eat(varsym);
-        AST_list idents = parseIdents();
-        add_AST_to_end(&ret, &last, idents);
+        vdasts = parseIdents();
         eat(semisym);
+        add_AST_to_end(&ret, &last, vdasts);
     }
-
-    return(ret);
+    return ret;
 }
 
+// <idents> ::= <ident> { <comma-ident> }
 AST_list parseIdents()
 {
     token idtok = tok;
     eat(identsym);
-    AST* vd1 = ast_var_decl(idtok, idtok.text);
-    AST_list ret = ast_list_singleton(vd1);
+    AST_list ret = ast_list_singleton(ast_var_decl(idtok, idtok.text));
     AST_list last = ret;
-
     while (tok.typ == commasym) {
         eat(commasym);
-        token idtok2 = tok;
+        token idtok = tok;
         eat(identsym);
-        AST* vd2 = ast_var_decl(idtok2, idtok2.text);
-
-        add_AST_to_end(&ret, &last, ast_list_singleton(vd2));
+        AST *vd = ast_var_decl(idtok, idtok.text);
+        add_AST_to_end(&ret, &last, ast_list_singleton(vd));
     }
-
     return ret;
 }
+
+// AST_list parseVarDecls(){
+//     AST_list ret = ast_list_empty_list();
+//     AST_list last = ast_list_empty_list();
+
+//     while(tok.typ == varsym){
+//         eat(varsym);
+//         AST_list idents = parseIdents();
+//         add_AST_to_end(&ret, &last, idents);
+//         eat(semisym);
+//     }
+
+//     return(ret);
+// }
+
+// AST_list parseIdents()
+// {
+//     token idtok = tok;
+//     eat(identsym);
+//     AST* vd1 = ast_var_decl(idtok, idtok.text);
+//     AST_list ret = ast_list_singleton(vd1);
+//     AST_list last = ret;
+
+//     while (tok.typ == commasym) {
+//         eat(commasym);
+//         token idtok2 = tok;
+//         eat(identsym);
+//         AST* vd2 = ast_var_decl(idtok2, idtok2.text);
+
+//         add_AST_to_end(&ret, &last, ast_list_singleton(vd2));
+//     }
+
+//     return ret;
+// }
 
 AST* parseStmt(){
     AST* ret = NULL;
