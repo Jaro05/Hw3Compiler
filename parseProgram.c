@@ -49,6 +49,10 @@ void eat(token_type tt) {
     }
 }
 
+
+
+
+
 AST* parseProgram(){
     // Call lexer next and such to keep getting tokens. Slowly build the whole AST.
     // We will need to create a bunch of helper functions in this file, like parseIfStmt, parseWhileStmt, etc...
@@ -65,14 +69,39 @@ AST_list parseConstDecls(){
 }
 
 AST_list parseVarDecls(){
+    token vart = tok;
+
+    while(vart.typ == varsym){
+        eat(varsym);
+        parseIdents();
+    }
+
     return(NULL);
+}
+
+AST_list parseIdents()
+{
+    token idtok = tok;
+    eat(identsym);
+    AST* vd1 = ast_var_decl(idtok, idtok.text);
+    AST_list ret = ast_list_singleton(vd1);
+    while (tok.typ == commasym) {
+        eat(commasym);
+        token idtok = tok;
+        eat(identsym);
+        AST* vd2 = ast_var_decl(idtok, idtok.text);
+
+        ast_list_splice(ret, vd2);
+    }
+
+    return ret;
 }
 
 AST* parseStmt(){
     AST* ret = NULL;
     switch(tok.typ){
         case identsym:
-            //ret = parseAssignStmt();
+            ret = parseAssignStmt();
             break;
         case beginsym:
             ret = parseBeginStmt();
@@ -99,6 +128,17 @@ AST* parseStmt(){
 
     return(ret);
 }
+
+// ⟨ident⟩ := ⟨expr⟩
+AST* parseAssignStmt(){
+    token identt = tok;
+    eat(identsym);
+    eat(becomessym);
+    AST* exp = parseExpression();
+
+    return(ast_assign_stmt(identt, identt.text, exp));
+}
+
 
 // AST* parseIfStmt(){
 //     token ift = tok;
@@ -145,11 +185,41 @@ AST* parseWriteStmt(){
     return(ast_write_stmt(wrt, exp));
 }
 
+// ⟨expr⟩ ::= ⟨term⟩ {⟨add-sub-term⟩}
 AST* parseExpression(){
-    //for test case1 this is just a number.
-    token numt = tok;
-    eat(numbersym);
-    return(ast_number(numt, numt.value));
+    token expt = tok;
+
+    if(tok.typ == identsym){
+        eat(identsym);
+        return(ast_ident(expt, expt.text));
+    }else if(tok.typ == numbersym){
+        eat(numbersym);
+        return(ast_number(expt, expt.value));
+    }else{
+        //will need some reworking.
+        AST* exp1 = parseExpression();
+        bin_arith_op op = parseBinarthop();
+        AST* exp2 = parseExpression();
+        return(ast_bin_expr(expt, exp1, op, exp2));
+    }
+}
+
+bin_arith_op parseBinarthop(){
+    if(tok.typ == plussym){
+        eat(plussym);
+        return(addop);
+    }else if(tok.typ == minussym){
+        eat(minussym);
+        return(subop);
+    }else if(tok.typ == divsym){
+        eat(divsym);
+        return(divop);
+    }else if(tok.typ == multsym){
+        eat(multsym);
+        return(multop);
+    }else{
+        printf("error");
+    }
 }
 
 // AST* parseCondition(){

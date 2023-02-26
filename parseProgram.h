@@ -29,3 +29,7 @@ AST* parseBeginStmt();
 AST* parseWriteStmt();
 
 AST* parseExpression();
+
+bin_arith_op parseBinarthop();
+
+AST* parseAssignStmt();
