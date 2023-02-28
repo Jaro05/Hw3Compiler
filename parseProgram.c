@@ -175,11 +175,12 @@ AST* parseBeginStmt(){
     eat(beginsym);
     AST* stmt = parseStmt();
     AST_list stmts = ast_list_singleton(stmt);
+    AST_list last = stmts;
 
     while(tok.typ != endsym){
         eat(semisym);
         AST *stmt2 = parseStmt();
-        ast_list_splice(stmts, stmt2);
+        add_AST_to_end(&stmts, &last, ast_list_singleton(stmt2));
     }
 
     eat(endsym);
@@ -233,6 +234,7 @@ AST* parseWriteStmt(){
 // skip
 AST* parseSkipStmt(){
     token skipt = tok;
+    eat(skipsym);
 
     return(ast_skip_stmt(skipt));
 }
@@ -256,11 +258,11 @@ static AST *parseAddSubTerm()
     if(tok.typ == plussym){
         eat(plussym);
         AST* term = parseTerm();
-        return(ast_op_expr(opt, plussym, term));
+        return(ast_op_expr(opt, addop, term));
     }else if(tok.typ == minussym){
         eat(minussym);
         AST* term = parseTerm();
-        return(ast_op_expr(opt, minussym, term));
+        return(ast_op_expr(opt, subop, term));
     }else{
         token_type expected[2] = {plussym, minussym};
         parse_error_unexpected(expected, 2, tok);
@@ -294,7 +296,7 @@ static AST *parseMultDivFactor()
     }else if(tok.typ == divsym){
         eat(divsym);
         AST* factor = parseFactor();
-        return(ast_op_expr(opt, divsym, factor));
+        return(ast_op_expr(opt, divop, factor));
     }else{
         token_type expected[2] = {multsym, divsym};
 	    parse_error_unexpected(expected, 2, tok);
