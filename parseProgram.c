@@ -49,6 +49,17 @@ void eat(token_type tt) {
     }
 }
 
+void add_AST_to_end(AST_list *head, AST_list *last, AST_list lst)
+{
+    if (ast_list_is_empty(*head)) {
+        *head = lst;
+        *last = ast_list_last_elem(lst);
+    } else {
+	    // assert(*last != NULL);
+        ast_list_splice(*last, lst);
+        *last = ast_list_last_elem(lst);
+    }
+}
 
 
 
@@ -64,22 +75,12 @@ AST* parseProgram(){
     return(ast_program(file.filename, file.line, file.column, cds, vds, stmt));
 }
 
+// ⟨const-decls⟩ ::= {⟨const-decl⟩}
 AST_list parseConstDecls(){
     return(NULL);
 }
 
-void add_AST_to_end(AST_list *head, AST_list *last, AST_list lst)
-{
-    if (ast_list_is_empty(*head)) {
-        *head = lst;
-        *last = ast_list_last_elem(lst);
-    } else {
-	    // assert(*last != NULL);
-        ast_list_splice(*last, lst);
-        *last = ast_list_last_elem(lst);
-    }
-}
-
+// ⟨var-decls⟩ ::= {⟨var-decl⟩}
 AST_list parseVarDecls()
 {
     AST_list ret = ast_list_empty_list();
@@ -112,40 +113,17 @@ AST_list parseIdents()
     return ret;
 }
 
-// AST_list parseVarDecls(){
-//     AST_list ret = ast_list_empty_list();
-//     AST_list last = ast_list_empty_list();
-
-//     while(tok.typ == varsym){
-//         eat(varsym);
-//         AST_list idents = parseIdents();
-//         add_AST_to_end(&ret, &last, idents);
-//         eat(semisym);
-//     }
-
-//     return(ret);
-// }
-
-// AST_list parseIdents()
-// {
-//     token idtok = tok;
-//     eat(identsym);
-//     AST* vd1 = ast_var_decl(idtok, idtok.text);
-//     AST_list ret = ast_list_singleton(vd1);
-//     AST_list last = ret;
-
-//     while (tok.typ == commasym) {
-//         eat(commasym);
-//         token idtok2 = tok;
-//         eat(identsym);
-//         AST* vd2 = ast_var_decl(idtok2, idtok2.text);
-
-//         add_AST_to_end(&ret, &last, ast_list_singleton(vd2));
-//     }
-
-//     return ret;
-// }
-
+/*
+    ⟨stmt⟩ ::= ⟨ident⟩ := ⟨expr⟩
+    | begin ⟨stmt⟩ {⟨semi-stmt⟩} end
+    | if ⟨condition⟩ then ⟨stmt⟩ else ⟨stmt⟩
+    | while ⟨condition⟩ do ⟨stmt⟩
+    | read ⟨ident⟩
+    | write ⟨expr⟩
+    | skip
+    ⟨semi-stmt⟩ ::= ; ⟨stmt⟩
+    ⟨empty⟩ ::=
+*/
 AST* parseStmt(){
     AST* ret = NULL;
     switch(tok.typ){
@@ -156,13 +134,13 @@ AST* parseStmt(){
             ret = parseBeginStmt();
             break;
         case ifsym:
-            //ret = parseIfStmt();
+            ret = parseIfStmt();
             break;
         case whilesym:
-            //ret = parseWhileStmt();
+            ret = parseWhileStmt();
             break;
         case readsym:
-            //ret = parseIfStmt();
+            ret = parseReadStmt();
             break;
         case writesym:
             ret = parseWriteStmt();
@@ -188,25 +166,6 @@ AST* parseAssignStmt(){
     return(ast_assign_stmt(identt, identt.text, exp));
 }
 
-
-// AST* parseIfStmt(){
-//     token ift = tok;
-//     eat(ifsym);
-//     AST* cond = parseCondition();
-//     eat(thensym);
-//     AST* stmt1 = parseStmt();
-//     eat(elsesym);
-//     AST* stmt2 = parseStmt();
-
-//     return(ast_if_stmt(/*stuff*/));
-// }
-
-AST* parseSkipStmt(){
-    token skipt = tok;
-
-    return(ast_skip_stmt(skipt));
-}
-
 // begin ⟨stmt⟩ {⟨semi-stmt⟩} end
 // ⟨semi-stmt⟩ ::= ; ⟨stmt⟩
 AST* parseBeginStmt(){
@@ -226,6 +185,41 @@ AST* parseBeginStmt(){
     return(ast_begin_stmt(begint, stmts));
 }
 
+// if ⟨condition⟩ then ⟨stmt⟩ else ⟨stmt⟩
+AST* parseIfStmt(){
+    token ift = tok;
+    eat(ifsym);
+    AST* cond = parseCondition();
+    eat(thensym);
+    AST* stmt1 = parseStmt();
+    eat(elsesym);
+    AST* stmt2 = parseStmt();
+
+    return(ast_if_stmt(ift, cond, stmt1, stmt2));
+}
+
+// while ⟨condition⟩ do ⟨stmt⟩
+AST* parseWhileStmt(){
+    token whilet = tok;
+    eat(whilesym);
+    AST* cond = parseCondition();
+    eat(dosym);
+    AST* stmt = parseStmt();
+
+    return(ast_while_stmt(whilet, cond, stmt));
+}
+
+// read ⟨ident⟩
+AST* parseReadStmt(){
+    token readt = tok;
+    eat(readsym);
+    const char *identname = tok.text;
+    eat(identsym);
+
+    return(ast_read_stmt(readt, identname));
+}
+
+// write ⟨expr⟩
 AST* parseWriteStmt(){
     token wrt = tok;
     eat(writesym);
@@ -234,55 +228,141 @@ AST* parseWriteStmt(){
     return(ast_write_stmt(wrt, exp));
 }
 
+// skip
+AST* parseSkipStmt(){
+    token skipt = tok;
+
+    return(ast_skip_stmt(skipt));
+}
+
 // ⟨expr⟩ ::= ⟨term⟩ {⟨add-sub-term⟩}
 AST* parseExpression(){
     token expt = tok;
-
-    if(tok.typ == identsym){
-        eat(identsym);
-        return(ast_ident(expt, expt.text));
-    }else if(tok.typ == numbersym){
-        eat(numbersym);
-        return(ast_number(expt, expt.value));
-    }else{
-        //will need some reworking.
-        AST* exp1 = parseExpression();
-        bin_arith_op op = parseBinarthop();
-        AST* exp2 = parseExpression();
-        return(ast_bin_expr(expt, exp1, op, exp2));
+    AST *exp = parseTerm();
+    while (tok.typ == plussym || tok.typ == minussym) {
+        AST *addsub = parseAddSubTerm();
+        exp = ast_bin_expr(expt, exp, addsub->data.op_expr.arith_op, addsub->data.op_expr.exp);
     }
+
+    return exp;
 }
 
-bin_arith_op parseBinarthop(){
+// ⟨add-sub-term⟩ ::= ⟨add-sub⟩ ⟨term⟩
+static AST *parseAddSubTerm()
+{
+    token opt = tok;
     if(tok.typ == plussym){
         eat(plussym);
-        return(addop);
+        AST* term = parseTerm();
+        return(ast_op_expr(opt, plussym, term));
     }else if(tok.typ == minussym){
         eat(minussym);
-        return(subop);
+        AST* term = parseTerm();
+        return(ast_op_expr(opt, minussym, term));
+    }else{
+        token_type expected[2] = {plussym, minussym};
+        parse_error_unexpected(expected, 2, tok);
+    }
+
+    return(NULL);
+}
+
+// ⟨term⟩ ::= ⟨factor⟩ {⟨mult-div-factor⟩}
+static AST *parseTerm()
+{
+    token termt = tok;
+    AST *exp = parseFactor();
+    while (tok.typ == multsym || tok.typ == divsym) {
+        AST *multdiv = parseMultDivFactor();
+        exp = ast_bin_expr(termt, exp, multdiv->data.op_expr.arith_op, multdiv->data.op_expr.exp);
+    }
+
+    return exp;
+}
+
+
+// <mult-div-factor> ::= <mult-div> <factor>
+static AST *parseMultDivFactor()
+{
+    token opt = tok;
+    if(tok.typ == multsym){
+        eat(multsym);
+        AST* factor = parseFactor();
+        return(ast_op_expr(opt, multop, factor));
     }else if(tok.typ == divsym){
         eat(divsym);
-        return(divop);
-    }else if(tok.typ == multsym){
-        eat(multsym);
-        return(multop);
+        AST* factor = parseFactor();
+        return(ast_op_expr(opt, divsym, factor));
     }else{
-        printf("error");
+        token_type expected[2] = {multsym, divsym};
+	    parse_error_unexpected(expected, 2, tok);
+    }
+
+    return (NULL);
+}
+
+// ⟨factor⟩ ::= ⟨ident⟩ | ⟨sign⟩ ⟨number⟩ | ( ⟨expr⟩ )
+AST *parseFactor()
+{
+    if(tok.typ == identsym){
+        token ident = tok;
+        eat(identsym);
+        return(ast_ident(ident, ident.text));
+    }else if(tok.typ == numbersym){
+        token numt = tok;
+        eat(numbersym);
+        return(ast_number(numt, numt.value));
+    }else if(tok.typ == lparensym){
+        token expt = tok;
+        eat(lparensym);
+        AST* exp = parseExpression();
+        eat(rparensym);
+        return(exp);
+    }else{
+        token_type expected[3] = {identsym, lparensym, numbersym};
+	    parse_error_unexpected(expected, 3, tok);
+    }
+
+    return(NULL);
+}
+
+// ⟨condition⟩ ::= odd ⟨expr⟩
+// | ⟨expr⟩ ⟨rel-op⟩ ⟨expr⟩
+AST* parseCondition(){
+    token condt = tok;
+    if(condt.typ == oddsym){
+        eat(oddsym);
+        AST* e1 = parseExpression();
+        return(ast_odd_cond(tok, e1));
+    }else{
+        AST* e1 = parseExpression();
+        rel_op relop = parseRelOp();
+        AST* e2 = parseExpression();
+        return(ast_bin_cond(condt, e1, relop, e2));
     }
 }
 
-// AST* parseCondition(){
-//     token condt = tok;
-//     if(condt.typ == oddsym){
-//         eat(oddsym);
-//         AST* e1 = parseExpr();
-//         return(ast_odd_cond(tok, e1));
-//     }else{
-//         AST* e1 = parseExpr();
-//         //might need changing
-//         rel_op relop = parseOp();
-//         AST* e2 = parseExpr();
-//         return(ast_bin_cond(condt, e1, relop, e2));
-//     }
-// }
+// rel-op⟩ ::= = | <> | < | <= | > | >=
+rel_op parseRelOp(){
+    token relt = tok;
+    if(relt.typ == eqsym){
+        eat(eqsym);
+        return(eqop);
+    }else if(relt.typ == neqsym){
+        eat(neqsym);
+        return(neqop);
+    }else if(relt.typ == lessym){
+        eat(lessym);
+        return(ltop);
+    }else if(relt.typ == leqsym){
+        eat(lessym);
+        return(leqop);
+    }else if(relt.typ == gtrsym){
+        eat(gtrsym);
+        return(gtop);
+    }else if(relt.typ == geqsym){
+        eat(geqsym);
+        return(geqop);
+    }
+}
 
