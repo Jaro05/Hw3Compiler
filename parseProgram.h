@@ -1,15 +1,10 @@
+#include "lexer.h"
+#include "lexer_output.h"
+#include "utilities.h"
 #include "token.h"
 #include "ast.h"
 #include "unparser.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "lexer.h"
-#include "lexer_output.h"
-#include <ctype.h>
-#include "utilities.h"
-#include "token.h"
-#include "parseProgram.h"
+
 
 // Commands to compile
 // gcc -o compiler utilities.c utilities.h unparserInternal.h unparser.h unparser.c token.h token.c parseProgram.h parseProgram.c parse.c lexer.h lexer.c lexer_output.h lexer_output.c id_attrs.h id_attrs.c ast.c ast.h file_location.c file_location.h
