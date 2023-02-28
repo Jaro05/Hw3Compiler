@@ -341,7 +341,13 @@ static AST *parseMultDivFactor()
 // ⟨factor⟩ ::= ⟨ident⟩ | ⟨sign⟩ ⟨number⟩ | ( ⟨expr⟩ )
 AST *parseFactor()
 {
-    if(tok.typ == identsym){
+    if(tok.typ == minussym){
+        eat(minussym);
+        token numt = tok;
+        eat(numbersym);
+        short val = numt.value-2*numt.value;
+        return(ast_number(numt, val));
+    }else if(tok.typ == identsym){
         token ident = tok;
         eat(identsym);
         return(ast_ident(ident, ident.text));

@@ -1,4 +1,4 @@
-/* $Id: lexer.h,v 1.1 2023/02/10 18:51:35 leavens Exp $ */
+/* $Id: lexer.h,v 1.2 2023/01/31 06:45:02 leavens Exp $ */
 #ifndef _LEXER_H
 #define _LEXER_H
 #include <stdbool.h>
