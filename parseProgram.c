@@ -79,7 +79,17 @@ AST* parseProgram(){
 
 // ⟨const-decls⟩ ::= {⟨const-decl⟩}
 AST_list parseConstDecls(){
-    return(NULL);
+    AST_list ret = ast_list_empty_list();
+    AST_list last = ast_list_empty_list();
+
+    while (tok.typ == constsym) {
+        AST_list cdasts;
+        eat(constsym);
+        cdasts = parseConstDefs();
+        eat(semisym);
+        add_AST_to_end(&ret, &last, cdasts);
+    }
+    return ret;
 }
 
 // ⟨var-decls⟩ ::= {⟨var-decl⟩}
@@ -87,7 +97,7 @@ AST_list parseVarDecls()
 {
     AST_list ret = ast_list_empty_list();
     AST_list last = ast_list_empty_list();
-    // invariant: !ast_list_is_empty(ret) ==> !ast_list_is_empty(last)
+
     while (tok.typ == varsym) {
         AST_list vdasts;
         eat(varsym);
@@ -112,6 +122,29 @@ AST_list parseIdents()
         AST *vd = ast_var_decl(idtok, idtok.text);
         add_AST_to_end(&ret, &last, ast_list_singleton(vd));
     }
+    return ret;
+}
+
+AST_list parseConstDefs()
+{
+    token idt = tok;
+    eat(identsym);
+    eat(eqsym);
+    token numbert = tok;
+    eat(numbersym);
+    AST_list ret = ast_list_singleton(ast_const_def(idt, idt.text, numbert.value));
+    AST_list last = ret;
+    while(tok.typ == commasym){
+        eat(commasym);
+        token idt2 = tok;
+        eat(identsym);
+        eat(eqsym);
+        token numbert2 = tok;
+        eat(numbersym);
+        AST *cd = ast_const_def(idt2, idt2.text, numbert2.value);
+        add_AST_to_end(&ret, &last, ast_list_singleton(cd));
+    }
+
     return ret;
 }
 

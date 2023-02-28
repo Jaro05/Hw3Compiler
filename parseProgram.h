@@ -34,6 +34,8 @@ AST_list parseConstDecls();
 // ⟨var-decls⟩ ::= {⟨var-decl⟩}
 AST_list parseVarDecls();
 
+AST_list parseConstDefs();
+
 // <idents> ::= <ident> { <comma-ident> }
 AST_list parseIdents();
 
