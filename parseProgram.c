@@ -357,7 +357,7 @@ rel_op parseRelOp(){
         eat(lessym);
         return(ltop);
     }else if(relt.typ == leqsym){
-        eat(lessym);
+        eat(leqsym);
         return(leqop);
     }else if(relt.typ == gtrsym){
         eat(gtrsym);
