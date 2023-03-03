@@ -63,7 +63,7 @@ token lexer_next(){
     lexer.column++;
 
     //If the char is a space or a newline, move on to the next char and update the line/column.
-    while(ch == ' ' || ch == '\n' || ch == '#'){
+    while(ch == ' ' || ch == '\n' || ch == '#' || ch == '\r'){
         if(ch == ' '){
             ch = fgetc(lexer.filepointer);
             lexer.column++;
@@ -71,6 +71,11 @@ token lexer_next(){
             ch = fgetc(lexer.filepointer);
             lexer.line++;
             lexer.column = 1;
+        }
+        else if (ch == '\r')
+        {
+            ch = fgetc(lexer.filepointer);
+
         }
         else if (ch == '#')
         {
