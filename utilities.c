@@ -163,3 +163,19 @@ void general_error(file_location floc, const char *fmt, ...)
     va_start(args, fmt);
     vbail_with_error(fmt, args);
 }
+
+void undeclared_error(token t)
+{
+    fflush(stdout); // flush so output comes after what has happened already
+    // print file, line, column information
+    fprintf(stderr, "%s: line %d, column %d: identifier \"%s\" is not declared!",
+	    t.filename, t.line, t.column, t.text);
+}
+
+void multiple_declaration_error(token t)
+{
+    fflush(stdout); // flush so output comes after what has happened already
+    // print file, line, column information
+    fprintf(stderr, "%s: line %d, column %d: variable \"%s\" is already declared as a variable!",
+	    t.filename, t.line, t.column, t.text);
+}

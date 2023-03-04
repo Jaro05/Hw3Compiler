@@ -63,9 +63,6 @@ void add_AST_to_end(AST_list *head, AST_list *last, AST_list lst)
     }
 }
 
-
-
-
 AST* parseProgram(){
     // Call lexer next and such to keep getting tokens. Slowly build the whole AST.
     // We will need to create a bunch of helper functions in this file, like parseIfStmt, parseWhileStmt, etc...
@@ -161,6 +158,8 @@ AST_list parseConstDefs()
 */
 AST* parseStmt(){
     AST* ret = NULL;
+    token_type expected[7] = {identsym, beginsym, ifsym, whilesym, readsym, writesym, skipsym};
+
     switch(tok.typ){
         case identsym:
             ret = parseAssignStmt();
@@ -184,8 +183,8 @@ AST* parseStmt(){
             ret = parseSkipStmt();
             break;
         default:
-	       // parse_error_unexpected(a, a, tok);
-           printf("fail");
+            parse_error_unexpected(expected, 7, tok);
+           // printf("fail");
     }
 
     return(ret);
