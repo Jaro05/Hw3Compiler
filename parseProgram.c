@@ -70,6 +70,7 @@ AST* parseProgram(){
     AST_list cds = parseConstDecls();
     AST_list vds = parseVarDecls();
     AST* stmt = parseStmt();
+    eat(periodsym);
 
     return(ast_program(file.filename, file.line, file.column, cds, vds, stmt));
 }
