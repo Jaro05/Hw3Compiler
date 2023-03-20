@@ -209,7 +209,7 @@ AST* parseBeginStmt(){
     AST_list stmts = ast_list_singleton(stmt);
     AST_list last = stmts;
 
-    while(tok.typ != endsym){
+    while(tok.typ == semisym){
         eat(semisym);
         AST *stmt2 = parseStmt();
         add_AST_to_end(&stmts, &last, ast_list_singleton(stmt2));
