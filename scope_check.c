@@ -12,22 +12,22 @@
 //JACOBS COMMENT
 
 
-// // Build the symbol table for the given program AST
-// // and Check the given program AST for duplicate declarations
-// // or uses of identifiers that were not declared
-// void scope_check_program(AST *prog)
-// {
-//     scope_check_varDecls(prog->data.program.vds);
-//     scope_check_stmt(prog->data.program.stmt);
-// }
+// Build the symbol table for the given program AST
+// and Check the given program AST for duplicate declarations
+// or uses of identifiers that were not declared
+void scope_check_program(AST *prog)
+{
+    scope_check_varDecls(prog->data.program.vds);
+    scope_check_stmt(prog->data.program.stmt);
+}
 
 // Put the given name, which is to be declared with var_type vt,
 // and has its declaration at the given file location (floc),
 // into the current scope's symbol table at the offset scope_size().
 
-//****** (Original line) static void add_ident_to_scope(const char *name, var_type vt, file_location floc)
+// ****** (Original line) static void add_ident_to_scope(const char *name, var_type vt, file_location floc)
 // **** edit
-//could lead to errors triple check
+// could lead to errors triple check
 static void add_ident_to_scope(const char *name, id_kind k,
 			       file_location floc)
 {
@@ -124,7 +124,7 @@ void scope_check_beginStmt(AST *stmt)
 //********
 void scope_check_ifStmt(AST *stmt)
 {
-    scope_check_expr(stmt->data.if_stmt.exp);
+    scope_check_expr(stmt->data.if_stmt.cond);
     scope_check_stmt(stmt->data.if_stmt.thenstmt);
     scope_check_stmt(stmt->data.if_stmt.elsestmt);
 
