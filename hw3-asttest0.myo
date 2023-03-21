@@ -1,3 +1,2 @@
 skip
 .
-Call to scope_check_stmt with an AST that is not a statement!

@@ -1,1 +1,5 @@
-Segmentation fault (core dumped)
+var x;
+var aLongOne;
+var ALongerOne;
+x := aLongOne
+.

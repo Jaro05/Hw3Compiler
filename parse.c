@@ -1,5 +1,6 @@
 #include "parseProgram.h"
 #include "scope_check.h"
+#include "scope_symtab.h"
 
 int main(int argc, char *argv[]){
     // 1) Call parser_open to open the file.
@@ -20,6 +21,7 @@ int main(int argc, char *argv[]){
 
     // 5) PART 2 (150 points).
     //    Go back through the AST and build a symbol table while also checking for errors.
+    scope_initialize();
     scope_check_program(progast);
 
     // 6) EXIT SUCCESS
