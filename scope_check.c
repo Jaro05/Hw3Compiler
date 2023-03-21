@@ -9,6 +9,9 @@
 // #include "scope_symtab.h"
 // #include "scope_check.h"
 
+//JACOBS COMMENT
+
+
 // // Build the symbol table for the given program AST
 // // and Check the given program AST for duplicate declarations
 // // or uses of identifiers that were not declared
