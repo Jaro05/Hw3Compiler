@@ -162,9 +162,9 @@ void scope_check_whileStmt(AST *stmt)
     scope_check_stmt(stmt->data.while_stmt.stmt);
 }
 //********
-void scope_check_skipStmt(AST *stmt)
-{
-}
+// void scope_check_skipStmt(AST *stmt)
+// {
+// }
 
 void scope_check_cond(AST *cond)
 {
