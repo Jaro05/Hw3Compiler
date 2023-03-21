@@ -17,8 +17,8 @@
 // or uses of identifiers that were not declared
 void scope_check_program(AST *prog)
 {
-    scope_check_varDecls(prog->data.program.vds);
     scope_check_constDecls(prog->data.program.cds);
+    scope_check_varDecls(prog->data.program.vds);
     scope_check_stmt(prog->data.program.stmt);
 }
 

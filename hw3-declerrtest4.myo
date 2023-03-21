@@ -6,4 +6,4 @@ var y;
 var c;
 skip
 .
-hw3-declerrtest4.pl0: line 2, column 16: constant "y" is already declared as a variable
+hw3-declerrtest4.pl0: line 3, column 8: variable "y" is already declared as a constant
