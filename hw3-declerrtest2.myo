@@ -1,9 +1,1 @@
-const nl = 10;
-const x = 120;
-const y = 121;
-const x = 170;
-begin
-  write y;
-  write nl
-end
-.
+Segmentation fault (core dumped)
