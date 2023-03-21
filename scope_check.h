@@ -60,4 +60,6 @@ extern void scope_check_ident(file_location floc, const char *name);
 // (if not, then produce an error)
 extern void scope_check_bin_expr(AST *exp);
 
+extern void scope_check_bin_cond(AST *cond);
+
 #endif

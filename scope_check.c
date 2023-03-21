@@ -18,6 +18,7 @@
 void scope_check_program(AST *prog)
 {
     scope_check_varDecls(prog->data.program.vds);
+    scope_check_constDecls(prog->data.program.cds);
     scope_check_stmt(prog->data.program.stmt);
 }
 
@@ -35,7 +36,7 @@ static void add_ident_to_scope(const char *name, id_kind k,
     if (attrs != NULL) {
 	general_error(floc,
 		      "%s \"%s\" is already declared as a %s",
-		      vt2str(k), name, vt2str(attrs->kind));
+		      kind2str(k), name, kind2str(attrs->kind));
     } else {
 	scope_insert(name, create_id_attrs(floc, k, scope_size()));
     }
@@ -50,19 +51,28 @@ void scope_check_varDecls(AST_list vds)
     }
 }
 
+void scope_check_constDecls(AST_list cds)
+{
+    while (!ast_list_is_empty(cds)) {
+	scope_check_constDecl(ast_list_first(cds));
+	cds = ast_list_rest(cds);
+    }
+}
+
+
 // check the var declaration vd
 // and add it to the current scope's symbol table
 // or produce an error if the name has already been declared
 void scope_check_varDecl(AST *vd)
 {
     // (Original) add_ident_to_scope(vd->data.var_decl.name, vd->data.var_decl.vt, vd->file_loc);
-    add_ident_to_scope(vd->data.var_decl.name, vd->file_loc);
+    add_ident_to_scope(vd->data.var_decl.name, variable, vd->file_loc);
 }
 
 //******
-void scope_check_ConstDecl(AST *cd)
+void scope_check_constDecl(AST *cd)
 {
-
+    add_ident_to_scope(cd->data.const_decl.name, constant, cd->file_loc);
 }
 
 // check the statement to make sure that
@@ -124,7 +134,7 @@ void scope_check_beginStmt(AST *stmt)
 //********
 void scope_check_ifStmt(AST *stmt)
 {
-    scope_check_expr(stmt->data.if_stmt.cond);
+    scope_check_cond(stmt->data.if_stmt.cond);
     scope_check_stmt(stmt->data.if_stmt.thenstmt);
     scope_check_stmt(stmt->data.if_stmt.elsestmt);
 
@@ -148,18 +158,28 @@ void scope_check_writeStmt(AST *stmt)
 //********
 void scope_check_whileStmt(AST *stmt)
 {
-    
+    scope_check_cond(stmt->data.while_stmt.cond);
+    scope_check_stmt(stmt->data.while_stmt.stmt);
 }
 //********
 void scope_check_skipStmt(AST *stmt)
 {
-
 }
 
 void scope_check_cond(AST *cond)
 {
-    
+    if(cond->type_tag == odd_cond_ast)
+    {
+        scope_check_expr(cond->data.odd_cond.exp);
+    }
+    else
+    {
+        //double check
+        scope_check_bin_cond(cond);
+    }
+
 }
+
 
 // check the expresion to make sure that
 // all idenfifiers referenced in it have been declared
@@ -206,3 +226,8 @@ void scope_check_bin_expr(AST *exp)
     scope_check_expr(exp->data.bin_expr.rightexp);
 }
 
+void scope_check_bin_cond(AST *cond)
+{
+    scope_check_expr(cond->data.bin_cond.leftexp);
+    scope_check_expr(cond->data.bin_cond.rightexp);
+}
