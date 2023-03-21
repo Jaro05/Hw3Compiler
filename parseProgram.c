@@ -11,7 +11,7 @@
 #include "unparser.h"
 
 // Commands to compile
-// gcc -o compiler utilities.c utilities.h unparserInternal.h unparser.h unparser.c token.h token.c parseProgram.h parseProgram.c parse.c lexer.h lexer.c lexer_output.h lexer_output.c id_attrs.h id_attrs.c ast.c ast.h file_location.c file_location.h
+// gcc -o compiler utilities.c utilities.h unparser.c unparser.h token.c token.h lexer.c lexer.h lexer_output.c lexer_output.h id_attrs.c id_attrs.h parseProgram.c parseProgram.h ast.c ast.h file_location.c file_location.h unparserInternal.h parse.c scope_check.c scope_check.h scope_symtab.c scope_symtab.h
 
 // Commands to run program
 // ./compiler hw3-asttest1.pl0 > hw3-asttest1.myo 2>&1

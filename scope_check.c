@@ -99,8 +99,8 @@ void scope_check_stmt(AST *stmt)
     case while_ast:
     scope_check_whileStmt(stmt);   // make a function for this.
     break;
-    case skip_ast:
-    scope_check_skipStmt(stmt); //make a function for this.
+    // case skip_ast:
+    // scope_check_skipStmt(stmt); //make a function for this.
     default:
 	bail_with_error("Call to scope_check_stmt with an AST that is not a statement!");
 	break;

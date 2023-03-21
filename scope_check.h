@@ -5,8 +5,6 @@
 
 extern void scope_check_program(AST *prog);
 
-extern static void add_ident_to_scope(const char *name, id_kind k, file_location floc);
-
 extern void scope_check_varDecls(AST_list vds);
 
 extern void scope_check_constDecls(AST_list cds);
